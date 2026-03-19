@@ -1,4 +1,4 @@
-import { CallbackWithoutResultAndOptionalError, Model, model, Schema, Types } from "mongoose";
+import { CallbackWithoutResultAndOptionalError, Model, model, Schema, Types,InferSchemaType  } from "mongoose";
 import { hash, compare } from "bcrypt";
 
 interface EmailVerificationTokenDocument {
