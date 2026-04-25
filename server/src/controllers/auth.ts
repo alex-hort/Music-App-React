@@ -5,7 +5,7 @@ import jwt from "jsonwebtoken";
 import { sendForgetPasswordLink, sendPasswordResetSuccessEmail, sendVerificationEmail } from "#/utils/mail";
 import { formatProfile, generateToken } from "#/utils/helper";
 import EmailVerificationToken from "#/models/emailVerification";
-import { isValidObjectId } from "mongoose";
+import { isValidObjectId, Types } from "mongoose";
 import PasswordResetToken from "#/models/passwordResetToken";
 import crypto from "crypto";
 import { JWT_SECRET, PASSWORD_RESET_LINK } from "#/utils/variables";
@@ -24,7 +24,7 @@ export const create: RequestHandler = async (req: CreateUser, res) => {
   // send verification email
   const token = generateToken();
   await EmailVerificationToken.create({
-    owner: user._id,
+    owner: new Types.ObjectId(user._id.toString()),
     token,
   });
 
@@ -105,7 +105,7 @@ export const generateForgetPasswordLink: RequestHandler = async (req, res) => {
 
   
   await PasswordResetToken.create({
-    owner: user._id,
+    owner: new Types.ObjectId(user._id.toString()),
     token
   })
   const resetLink = `${PASSWORD_RESET_LINK}?token=${token}&userId=${user._id.toString()}`;
@@ -242,6 +242,26 @@ export const sendProfile: RequestHandler = async (req, res) => {
 
 
 export const logOut: RequestHandler = async (req, res) => {
+  try {
+    const { fromAll } = req.query;
+    const token = req.token;
 
-  const {fromAll} = 
-}
+    const user = await User.findById(req.user.id);
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+   
+    if (fromAll === "yes") {
+      user.tokens = [];
+    } else {
+      user.tokens = user.tokens.filter((t) => t !== token);
+    }
+
+    await user.save();
+    res.json({ success: true });
+    
+  } catch (error) {
+    res.status(500).json({ error: "Internal server error" });
+  }
+};

@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { CreateUserSchema, SignInVerificationSchema, TokenAndIDValidation, UpdatePasswordSchema  } from "#/utils/validationSchema";
 import { validate } from "#/middleware/validators";
-import { create, generateForgetPasswordLink, grantValid, sendProfile, sendReVerificationToken, signIn, updatePassword, updateProfile, verifyEmail } from "#/controllers/auth";
+import { create, generateForgetPasswordLink, grantValid, logOut, sendProfile, sendReVerificationToken, signIn, updatePassword, updateProfile, verifyEmail } from "#/controllers/auth";
 import { isValidPasswordResetToken, mustAuth } from "#/middleware/auth";
 import fileParser from "#/middleware/fileParser";
 import { sendPasswordResetSuccessEmail } from "#/utils/mail";

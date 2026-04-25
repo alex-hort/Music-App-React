@@ -1,8 +1,8 @@
-import { CallbackWithoutResultAndOptionalError, Model, model, Schema, Types,InferSchemaType  } from "mongoose";
+import {  Model, model, Schema, Types  } from "mongoose";
 import { hash, compare } from "bcrypt";
 
 interface EmailVerificationTokenDocument {
-  owner: Types.ObjectId;
+  owner: Types.ObjectId | Schema.Types.ObjectId;
   token: string;
   createdAt: Date;
 }

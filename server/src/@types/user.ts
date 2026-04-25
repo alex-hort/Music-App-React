@@ -1,10 +1,10 @@
-import { Request } from "express";
+import formidable from "formidable";
 
 declare global {
   namespace Express {
     interface Request {
       user: {
-        id: any;
+        id: string;
         name: string;
         email: string;
         verified: boolean;
@@ -12,11 +12,13 @@ declare global {
         followers: number;
         followings: number;
       };
+      token: string;
+      files?: { [key: string]: formidable.File };
     }
   }
 }
 
-export interface CreateUser extends Request {
+export interface CreateUser {
   body: {
     name: string;
     email: string;
@@ -24,7 +26,7 @@ export interface CreateUser extends Request {
   };
 }
 
-export interface VerifyEmailRequest extends Request {
+export interface VerifyEmailRequest {
   body: {
     token: string;
     userId: string;
