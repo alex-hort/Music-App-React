@@ -1,4 +1,4 @@
-import { RequestWithFiles  } from "#/middleware/fileParser";
+import { RequestWithFiles } from "#/middleware/fileParser";
 import { categoriesTypes } from "#/utils/audio_category";
 import { RequestHandler } from "express";
 import formidable from "formidable";
@@ -6,53 +6,108 @@ import cloudinary from "#/cloud";
 import Audio from "#/models/audio";
 
 interface CreateAudioRequest extends RequestWithFiles {
-
-    body: {
+  body: {
     title: string;
     about: string;
-    category: categoriesTypes
-    }
+    category: categoriesTypes;
+  };
 }
 
+export const createAudio: RequestHandler = async (
+  req: CreateAudioRequest,
+  res
+) => {
+  const { title, about, category } = req.body;
+  const poster = req.files?.poster as formidable.File;
+  const audioFile = req.files?.file as formidable.File;
+  const ownerId = req.user.id;
 
-export const createAudio: RequestHandler = async (req: CreateAudioRequest, res) => {
-  try {
-    const { title, about, category } = req.body;
-    const poster = req.files?.poster as formidable.File;
-    const audioFile = req.files?.file as formidable.File;
-    const ownerId = req.user.id as string;
+  if (!audioFile)
+    return res.status(422).json({ error: "Audio file is missing!" });
 
-    if (!audioFile) return res.status(422).json({ message: "Audio file is missing" });
+  const audioRes = await cloudinary.uploader.upload(audioFile.filepath, {
+    resource_type: "video",
+  });
+  const newAudio = new Audio({
+    title,
+    about,
+    category,
+    owner: ownerId,
+    file: { url: audioRes.url, publicId: audioRes.public_id },
+  });
 
-    const audioRes = await cloudinary.uploader.upload(audioFile.filepath, {
-      resource_type: "video",
+  if (poster) {
+    const posterRes = await cloudinary.uploader.upload(poster.filepath, {
+      width: 300,
+      height: 300,
+      crop: "thumb",
+      gravity: "face",
     });
 
-    const newAudio = new Audio({
+    newAudio.poster = {
+      url: posterRes.secure_url,
+      publicId: posterRes.public_id,
+    };
+  }
+
+  await newAudio.save();
+
+  res.status(201).json({
+    audio: {
       title,
       about,
-      category,
-      owner: ownerId,
-      file: { url: audioRes.url, publicId: audioRes.public_id },
-    });
+      file: newAudio.file.url,
+      poster: newAudio.poster?.url,
+    },
+  });
+};
 
-    if (poster) {
-      const posterRes = await cloudinary.uploader.upload(poster.filepath, {
-        width: 300,
-        height: 300,
-        crop: "thumb",
-        gravity: "face",
-      });
-      newAudio.poster = { url: posterRes.url, publicId: posterRes.public_id };
+export const updateAudio: RequestHandler = async (
+  req: CreateAudioRequest,
+  res
+) => {
+  const { title, about, category } = req.body;
+  const poster = req.files?.poster as formidable.File;
+  const ownerId = req.user.id;
+  const { audioId } = req.params;
+
+  const audio = await Audio.findById(audioId);
+
+  if (!audio || audio.owner.toString() !== ownerId)
+    return res.status(404).json({ error: "Record not found!" });
+
+  audio.title = title;
+  audio.about = about;
+  audio.category = category;
+
+  await audio.save();
+
+  if (poster) {
+    if (audio.poster?.publicId) {
+      await cloudinary.uploader.destroy(audio.poster.publicId);
     }
 
-    await newAudio.save();
-    res.status(201).json({ message: "Audio created successfully", audio: newAudio });
+    const posterRes = await cloudinary.uploader.upload(poster.filepath, {
+      width: 300,
+      height: 300,
+      crop: "thumb",
+      gravity: "face",
+    });
 
-  } catch (err) {
-    // 👇 Esto te dirá exactamente qué está fallando
-    console.error("createAudio error:", JSON.stringify(err, null, 2));
-    console.error("createAudio error message:", (err as Error).message);
-    res.status(500).json({ error: (err as Error).message });
+    audio.poster = {
+      url: posterRes.secure_url,
+      publicId: posterRes.public_id,
+    };
+
+    await audio.save();
   }
+
+  res.status(201).json({
+    audio: {
+      title,
+      about,
+      file: audio.file.url,
+      poster: audio.poster?.url,
+    },
+  });
 };
