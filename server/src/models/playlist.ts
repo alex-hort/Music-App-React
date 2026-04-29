@@ -1,35 +1,50 @@
-// ✅ Así debe quedar
-import { model, Model, models, Schema, Types } from "mongoose";
+import { categories, categoriesTypes } from "#/utils/audio_category";
+import { Model, models, model, Schema, Types } from "mongoose"; // 👈 quita ObjectId, agrega Types
 
-interface PlaylistDocument {
-    title: string;
-    owner: Types.ObjectId;
-    items: Types.ObjectId[];
-    visibility: "public" | "private" | "auto";
+export interface AudioDocument<T = Types.ObjectId> { // 👈 Types.ObjectId
+  _id: Types.ObjectId;
+  title: string;
+  about: string;
+  owner: T;
+  file: {
+    url: string;
+    publicId: string;
+  };
+  poster?: {
+    url: string;
+    publicId: string;
+  };
+  likes: Types.ObjectId[];
+  category: categoriesTypes;
+  createdAt: Date; // 👈 corregido el typo (createAt → createdAt)
 }
 
-const playlistSchema = new Schema<PlaylistDocument>({
-    title: {
-        type: String,
-        required: true,
+const AudioSchema = new Schema<AudioDocument>(
+  {
+    title: { type: String, required: true },
+    about: { type: String, required: true },
+    owner: { type: Schema.Types.ObjectId, ref: "User" },
+    file: {
+      type: Object,
+      url: String,
+      publicId: String,
+      required: true,
     },
-    owner: {
-        type: Schema.Types.ObjectId,  // <-- ObjectId, no String
-        required: true,
-        ref: "User",
+    poster: {
+      type: Object,
+      url: String,
+      publicId: String,
     },
-    items: [{
-        type: Schema.Types.ObjectId,  // <-- ObjectId, no String
-        ref: "Audio",
-    }],
-    visibility: {
-        type: String,
-        enum: ["public", "private", "auto"],
-        default: "public",
-    }
-}, { timestamps: true });
+    likes: [{ type: Schema.Types.ObjectId, ref: "User" }],
+    category: {
+      type: String,
+      enum: categories,
+      default: "Others",
+    },
+  },
+  { timestamps: true }
+);
 
+const Audio = models.Audio || model("Audio", AudioSchema);
 
-const Playlist = models.Playlist || model("Playlist", playlistSchema)
-
-export default Playlist as Model<PlaylistDocument>
+export default Audio as Model<AudioDocument>;
