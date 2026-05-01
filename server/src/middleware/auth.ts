@@ -77,3 +77,34 @@ export const isVerified: RequestHandler = async (req, res, next) => {
 
     next();
 }
+
+export const isAuth: RequestHandler = async (req, res, next) => {
+  const {authorization} = req.headers;
+  const token = authorization?.split("Bearer ")[1];
+
+  if (token){
+
+    const played = verify(token, JWT_SECRET) as JwtPayload;
+    const id = played.userId;
+
+    const user = await User.findOne({_id: id, tokens: token});
+    
+    if (!user) {
+      return res.status(403).json({ error: "Unauthorized request!" });
+    }
+    
+      req.user = {
+        id: user._id.toString(),
+        name: user.name,
+        email: user.email,
+        verified: user.verified,
+        avatar: user.avatar?.url,
+        followers: user.followers.length,
+        followings: user.following.length,
+      };
+      req.token = token;
+    }
+  
+  next();
+
+}

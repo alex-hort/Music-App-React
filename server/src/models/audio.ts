@@ -1,8 +1,8 @@
 import { categories, categoriesTypes } from "#/utils/audio_category";
-import { Model, models, model, ObjectId, Schema } from "mongoose";
+import { Model, models, model, Schema, Types } from "mongoose"; // 👈 remove ObjectId, add Types
 
-export interface AudioDocument<T = ObjectId> {
-  _id: ObjectId;
+export interface AudioDocument<T = Types.ObjectId | string> { // 👈 union type default
+  _id: Types.ObjectId;
   title: string;
   about: string;
   owner: T;
@@ -14,25 +14,16 @@ export interface AudioDocument<T = ObjectId> {
     url: string;
     publicId: string;
   };
-  likes: ObjectId[];
+  likes: Types.ObjectId[];
   category: categoriesTypes;
-  createAt: Date;
+  createdAt: Date;
 }
 
 const AudioSchema = new Schema<AudioDocument>(
   {
-    title: {
-      type: String,
-      required: true,
-    },
-    about: {
-      type: String,
-      required: true,
-    },
-    owner: {
-      type: Schema.Types.ObjectId,
-      ref: "User",
-    },
+    title: { type: String, required: true },
+    about: { type: String, required: true },
+    owner: { type: Schema.Types.ObjectId, ref: "User" },
     file: {
       type: Object,
       url: String,
@@ -44,21 +35,14 @@ const AudioSchema = new Schema<AudioDocument>(
       url: String,
       publicId: String,
     },
-    likes: [
-      {
-        type: Schema.Types.ObjectId,
-        ref: "User",
-      },
-    ],
+    likes: [{ type: Schema.Types.ObjectId, ref: "User" }],
     category: {
       type: String,
       enum: categories,
       default: "Others",
     },
   },
-  {
-    timestamps: true,
-  }
+  { timestamps: true }
 );
 
 const Audio = models.Audio || model("Audio", AudioSchema);

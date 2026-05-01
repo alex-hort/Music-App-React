@@ -1,9 +1,10 @@
 import { AudioDocument } from "#/models/audio";
-import {ObjectId} from "mongoose";
+import {ObjectId, Types} from "mongoose";
 import { Request } from "express";
 
+export type PopulatedOwner = { _id: Types.ObjectId; name: string };
 
-export type PopulateFavList = AudioDocument<{ _id: ObjectId; name: string }>;
+export type PopulateFavList = AudioDocument<PopulatedOwner>;
 
 export interface CreatePlaylistRequest extends Request{
     body: {title: string, resId: string, visibility: "public" | "private"}

@@ -1,3 +1,4 @@
+import { paginationQuery } from "#/@types/misc";
 import History, { historyType } from "#/models/history";
 import { RequestHandler } from "express";
 
@@ -43,14 +44,17 @@ export const updateHistory: RequestHandler = async (req, res) => {
     {
       $project: {
         _id: 0,
-        audio: "$all.audio",
+        audioId: "$all.audio",
       },
     },
   ]);
 
-  const sameDayHistory = histories.find((item) => {
-    if (item.audio.toString() === audio) return item;
-  });
+  // const sameDayHistory = histories.find((item) => {
+  //   if (item.audio.toString() === audio) return item;
+  // });
+  const sameDayHistory = histories.find(
+    ({ audioId }) => audioId.toString() === audio
+  );
 
   if (sameDayHistory) {
     await History.findOneAndUpdate(
@@ -95,7 +99,6 @@ export const removeHistory: RequestHandler = async (req, res) => {
 
   res.json({ success: true });
 };
-
 
 export const getHistories: RequestHandler = async (req, res) => {
   const { limit = "20", pageNo = "0" } = req.query as paginationQuery;
@@ -148,7 +151,6 @@ export const getHistories: RequestHandler = async (req, res) => {
 
   res.json({ histories });
 };
-
 
 export const getRecentlyPlayed: RequestHandler = async (req, res) => {
   const match = { $match: { owner: req.user.id } };
@@ -226,5 +228,4 @@ export const getRecentlyPlayed: RequestHandler = async (req, res) => {
 
   res.json({ audios });
 };
-
 

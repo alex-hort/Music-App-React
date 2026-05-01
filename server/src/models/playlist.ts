@@ -1,50 +1,39 @@
-import { categories, categoriesTypes } from "#/utils/audio_category";
-import { Model, models, model, Schema, Types } from "mongoose"; // 👈 quita ObjectId, agrega Types
+import { Model, model, models, Schema, Types } from "mongoose"; // 👈 remove ObjectId, add Types
 
-export interface AudioDocument<T = Types.ObjectId> { // 👈 Types.ObjectId
-  _id: Types.ObjectId;
+interface PlaylistDocument {
   title: string;
-  about: string;
-  owner: T;
-  file: {
-    url: string;
-    publicId: string;
-  };
-  poster?: {
-    url: string;
-    publicId: string;
-  };
-  likes: Types.ObjectId[];
-  category: categoriesTypes;
-  createdAt: Date; // 👈 corregido el typo (createAt → createdAt)
+  owner: Types.ObjectId; // 👈
+  items: Types.ObjectId[]; // 👈
+  visibility: "public" | "private" | "auto";
 }
 
-const AudioSchema = new Schema<AudioDocument>(
+const playlistSchema = new Schema<PlaylistDocument>(
   {
-    title: { type: String, required: true },
-    about: { type: String, required: true },
-    owner: { type: Schema.Types.ObjectId, ref: "User" },
-    file: {
-      type: Object,
-      url: String,
-      publicId: String,
+    title: {
+      type: String,
       required: true,
     },
-    poster: {
-      type: Object,
-      url: String,
-      publicId: String,
+    owner: {
+      type: Schema.Types.ObjectId,
+      required: true,
+      ref: "User",
     },
-    likes: [{ type: Schema.Types.ObjectId, ref: "User" }],
-    category: {
+    items: [
+      {
+        type: Schema.Types.ObjectId,
+        required: true,
+        ref: "Audio",
+      },
+    ],
+    visibility: {
       type: String,
-      enum: categories,
-      default: "Others",
+      enum: ["public", "private", "auto"],
+      default: "public",
     },
   },
   { timestamps: true }
 );
 
-const Audio = models.Audio || model("Audio", AudioSchema);
+const Playlist = models.Playlist || model("Playlist", playlistSchema);
 
-export default Audio as Model<AudioDocument>;
+export default Playlist as Model<PlaylistDocument>;
