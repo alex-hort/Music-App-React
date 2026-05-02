@@ -1,0 +1,43 @@
+{
+  "name": "server",
+  "version": "1.0.0",
+  "description": "server for the react app",
+  "main": "index.js",
+  "scripts": {
+    "dev": "ts-node-dev --respawn -r tsconfig-paths/register src/index.ts",
+    "build": "tsc && tsc-alias"
+  },
+  "keywords": [],
+  "author": "alexis horteales",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/bcrypt": "^6.0.0",
+    "@types/dotenv": "^6.1.1",
+    "@types/express": "^5.0.6",
+    "@types/formidable": "^3.5.0",
+    "@types/mongoose": "^5.11.96",
+    "@types/node": "^25.5.0",
+    "@types/node-cron": "^3.0.11",
+    "@types/nodemailer": "^7.0.11",
+    "i": "^0.3.7",
+    "ts-node-dev": "^2.0.0",
+    "tsc-alias": "^1.8.16",
+    "tsconfig-paths": "^4.2.0",
+    "typescript": "^5.9.3"
+  },
+  "dependencies": {
+    "@types/jsonwebtoken": "^9.0.10",
+    "bcrypt": "^6.0.0",
+    "cloudinary": "^2.9.0",
+    "dotenv": "^17.3.1",
+    "express": "^4.22.1",
+    "express-async-errors": "^3.1.1",
+    "formidable": "^3.5.4",
+    "jsonwebtoken": "^9.0.3",
+    "moment": "^2.30.1",
+    "mongoose": "^9.3.0",
+    "node-cron": "^4.2.1",
+    "nodemailer": "^8.0.2",
+    "yup": "^1.7.1"
+  }
+}
