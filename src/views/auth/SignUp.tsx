@@ -1,7 +1,9 @@
+import AppInput from '../ui/AppInput';
 import colors from '@/utils/colors';
 import { FC } from 'react';
 import { StyleSheet, TextInput, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import AuthInputField from '@/components/AuthInputFiled';
 
 interface Props {}
 
@@ -9,27 +11,24 @@ const SignUp: FC<Props> = () => {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.formContainer}>
-        <Text style={styles.label}>Name</Text>
-        <TextInput
-          placeholder="Alex Horteales"
-          placeholderTextColor={colors.INACTIVE_CONTRAST}
-          style={styles.input}
-        />
+        <AuthInputField
+          placeholder="Alexis Horteales"
+          label="Name" containerStyle= {styles.marginBottom}
+        ></AuthInputField>
 
-        <Text style={styles.label}>Email</Text>
+        <AuthInputField
+          placeholder="ahorte@gmail.com"
+          label="Email" 
+          keyboardType="email-address" 
+          autoCapitalize='none'
+          containerStyle= {styles.marginBottom}
 
-        <TextInput
-          placeholder="alexhort@email.com"
-          placeholderTextColor={colors.INACTIVE_CONTRAST}
-          style={styles.input}
-        />
+        ></AuthInputField>
 
-        <Text style={styles.label}>Password</Text>
-        <TextInput
+        <AuthInputField
           placeholder="********"
-          placeholderTextColor={colors.INACTIVE_CONTRAST}
-          style={styles.input}
-        />
+          label="Password" autoCapitalize='none' secureTextEntry={true}
+        ></AuthInputField>
       </View>
     </SafeAreaView>
   );
@@ -43,21 +42,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 20,
   },
-  input: {
-    borderWidth: 2,
-    borderColor: colors.SECONDARY,
-    height: 45,
-    borderRadius: 22.5,
-    color: colors.CONTRAST,
-    paddingHorizontal: 15,
-    marginBottom: 15,
-  },
-  label: {
-    color: colors.CONTRAST,
-  },
+  
   formContainer: {
     width: '100%',
   },
+  marginBottom: {
+    marginBottom: 20
+  }
 });
 
 export default SignUp;
