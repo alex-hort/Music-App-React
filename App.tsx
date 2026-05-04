@@ -1,12 +1,7 @@
-import {View, Text} from 'react-native';
-
+import SignUp from '@/views/auth/SignUp';
 
 const App = () => {
-  return (
-    <View>
-      <Text>Welcome to React Native!</Text>
-    </View>
-  );
-}
+  return <SignUp />;
+};
 
 export default App;
