@@ -1,12 +1,16 @@
 import AuthInputField from '@/components/form/AuthInputFiled';
 import Form from '@/components/form';
 import { FC, useState } from 'react';
-import { Button, Image, StyleSheet, Text, View } from 'react-native';
+import {  StyleSheet, View } from 'react-native';
 import * as yup from 'yup';
 import SubmitBtn from '@/components/form/SubmitBtn';
 import PasswordVisibilityIcon from '../ui/PasswordVisibilityIcon';
 import AppLink from '../ui/AppLink';
 import AuthFormContainer from '@/components/form/AuthFormContainer';
+import { useNavigation, NavigationProp } from '@react-navigation/native';
+import { AuthStackParamList } from '@/@types/navigation';
+import { FormikHelpers } from 'formik';
+import client from '@/api/client';
 
 const signupSchema = yup.object({
   name: yup
@@ -32,6 +36,12 @@ const signupSchema = yup.object({
 
 interface Props {}
 
+export interface NewUser{
+  
+  name: string;
+  email: string;
+  password: string;
+}
 const initialValues = {
   name: '',
   email: '',
@@ -40,16 +50,26 @@ const initialValues = {
 
 const SignUp: FC<Props> = props => {
   const [secureEntry, setSecureEntry] = useState(true);
+  const navigation = useNavigation<NavigationProp<AuthStackParamList>>();
 
   const togglePasswordView = () => {
     setSecureEntry(!secureEntry);
   };
+const handleSubmit = async (values: NewUser, actions: FormikHelpers<NewUser>) => {
+  console.log("1. handleSubmit llamado", values); // ¿se llama?
+  try {
+    console.log("2. Enviando petición...");
+    const response = await client.post("/auth/create", { ...values });
+    console.log("3. Respuesta:", response.data); 
+    navigation.navigate("Verification", { userInfo: response.data.user })
+  } catch (error) {
+    console.log("4. ERROR:", JSON.stringify(error)); // ¿entra al catch?
+  }
+};
 
   return (
     <Form
-      onSubmit={values => {
-        console.log(values);
-      }}
+      onSubmit={handleSubmit}
       initialValues={initialValues}
       validationSchema={signupSchema}
     >
@@ -85,8 +105,12 @@ const SignUp: FC<Props> = props => {
           <SubmitBtn title="Sign up" />
 
           <View style={styles.linkContainer}>
-            <AppLink title="I lost my password" />
-            <AppLink title="Already have an account? Sign in" />
+            <AppLink title="I lost my password" onPress={() => {
+              navigation.navigate("LostPassword")
+            }} />
+            <AppLink title="Already have an account? Sign in" onPress={() => {
+              navigation.navigate("SignIn")
+            }} />
           </View>
         </View>
       </AuthFormContainer>

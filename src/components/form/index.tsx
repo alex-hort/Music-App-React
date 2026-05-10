@@ -13,15 +13,17 @@ interface Props<T> {
     
 }
 
-const Form = < T extends object>(props : Props< T >) => {
-    return  <Formik
-            onSubmit={values => {}}
-            initialValues={props.initialValues}
-            validationSchema={props.validationSchema}>
-            {props.children}
-
-          </Formik>
-}
+const Form = <T extends object>(props: Props<T>) => {
+  return (
+    <Formik
+      onSubmit={props.onSubmit}  
+      initialValues={props.initialValues}
+      validationSchema={props.validationSchema}
+    >
+      {props.children}
+    </Formik>
+  );
+};
 
 
 

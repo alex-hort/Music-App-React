@@ -4,14 +4,20 @@ import AppLink from '../ui/AppLink';
 import AuthFormContainer from '@/components/form/AuthFormContainer';
 import OTPField from '../ui/OTPField';
 import AppButton from '../ui/AppButton';
+import client from '@/api/client';
+import { AuthStackParamList } from '@/@types/navigation';
+import { useNavigation, NavigationProp } from '@react-navigation/native';
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
 
-interface Props {}
+type Props = NativeStackScreenProps<AuthStackParamList, 'Verification'>;
 
 const otpFields = new Array(6).fill('');
 
-const Verification: FC<Props> = props => {
+const Verification: FC<Props> = ({ route }) => {
   const [otp, setOtp] = useState([...otpFields]);
   const [activeOtpIndex, setActiveOtpIndex] = useState(0);
+  const { userInfo } = route.params;
+  const navigation = useNavigation<NavigationProp<AuthStackParamList>>();
 
   const inputRef = useRef<TextInput>(null);
 
@@ -36,8 +42,19 @@ const Verification: FC<Props> = props => {
     }
   };
 
-  const handleSubmit = () => {
-    console.log(otp.join(''));  // aqui conectas con tu API
+  const isValidOtp = otp.every(value => {
+    return value.trim();
+  });
+
+  const handleSubmit = async () => {
+    if (!isValidOtp) return;
+    try {
+      const {data} = await client.post('/auth/verify', { userId: userInfo.id, token: otp.join('') });
+
+      navigation.navigate("SignIn")
+    } catch (error) {
+      console.log("Verification error:", error);
+    }
   };
 
   useEffect(() => {
@@ -57,7 +74,7 @@ const Verification: FC<Props> = props => {
               onKeyPress={({ nativeEvent }) => {
                 handleChange(nativeEvent.key, index);
               }}
-              onChangeText={(value) => handlePaste(value)}  // 👈 corregido, era string no otp[index]
+              onChangeText={value => handlePaste(value)} // 👈 corregido, era string no otp[index]
               maxLength={1}
               keyboardType="numeric"
             />
