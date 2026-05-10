@@ -1,7 +1,9 @@
-import SignUp from '@/views/auth/SignUp';
+import SignIn from '@/views/auth/SignIn';
+import Verification from '@/views/auth/Verification';
+
 
 const App = () => {
-  return <SignUp />;
+  return <Verification />;
 };
 
 export default App;

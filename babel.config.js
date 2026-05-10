@@ -1,5 +1,5 @@
 module.exports = {
-  presets: ['module:@react-native/babel-preset'],
+  presets: ['@react-native/babel-preset'], // ← cambia esto
   plugins: [
     [
       'module-resolver',
@@ -9,6 +9,7 @@ module.exports = {
           '@': './src'
         }
       }
-    ]
-  ]
+    ],
+    'react-native-reanimated/plugin',
+  ],
 };
