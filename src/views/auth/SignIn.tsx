@@ -1,7 +1,7 @@
 import AuthInputField from '@/components/form/AuthInputFiled';
 import Form from '@/components/form';
-import {FC, useState} from 'react';
-import {StyleSheet, View} from 'react-native';
+import { FC, useState } from 'react';
+import { StyleSheet, View } from 'react-native';
 import * as yup from 'yup';
 import SubmitBtn from '@/components/form/SubmitBtn';
 import PasswordVisibilityIcon from '../ui/PasswordVisibilityIcon';
@@ -10,7 +10,6 @@ import AuthFormContainer from '@/components/form/AuthFormContainer';
 import { NavigationProp, useNavigation } from '@react-navigation/native';
 import { AuthStackParamList } from '@/@types/navigation';
 import { FormikHelpers } from 'formik/dist/types';
-import { NewUser } from './SignUp';
 import client from '@/api/client';
 
 const signinSchema = yup.object({
@@ -28,9 +27,9 @@ const signinSchema = yup.object({
 
 interface Props {}
 
-interface SignInUserInfo  {
-  email: string
-  password: string
+interface SignInUserInfo {
+  email: string;
+  password: string;
 }
 const initialValues = {
   email: '',
@@ -41,27 +40,30 @@ const SignIn: FC<Props> = props => {
   const [secureEntry, setSecureEntry] = useState(true);
   const navigation = useNavigation<NavigationProp<AuthStackParamList>>();
 
-
   const togglePasswordView = () => {
     setSecureEntry(!secureEntry);
   };
 
+  const handleSubmit = async (
+    values: SignInUserInfo,
+    actions: FormikHelpers<SignInUserInfo>,
+  ) => {
 
-const handleSubmit = async (values: SignInUserInfo, actions: FormikHelpers<SignInUserInfo>) => {
-  
-  try {
-    const response = await client.post("/auth/sign-in", { ...values });
-   
-  } catch (error) {
-    console.log("Sign-in error:", error);
-  }
-};
+    actions.setSubmitting(true);
+    try {
+      const response = await client.post('/auth/sign-in', { ...values });
+    } catch (error) {
+      console.log('Sign-in error:', error);
+    }
+    actions.setSubmitting(false);
+  };
 
   return (
     <Form
       onSubmit={handleSubmit}
       initialValues={initialValues}
-      validationSchema={signinSchema}>
+      validationSchema={signinSchema}
+    >
       <AuthFormContainer heading="Welcome back!">
         <View style={styles.formContainer}>
           <AuthInputField
@@ -85,12 +87,18 @@ const handleSubmit = async (values: SignInUserInfo, actions: FormikHelpers<SignI
           <SubmitBtn title="Sign in" />
 
           <View style={styles.linkContainer}>
-            <AppLink title="I lost my password" onPress={() => {
-              navigation.navigate("LostPassword")
-            }} />
-            <AppLink title="Sign up" onPress={() => {
-              navigation.navigate('SignUp');
-            }} />
+            <AppLink
+              title="I lost my password"
+              onPress={() => {
+                navigation.navigate('LostPassword');
+              }}
+            />
+            <AppLink
+              title="Sign up"
+              onPress={() => {
+                navigation.navigate('SignUp');
+              }}
+            />
           </View>
         </View>
       </AuthFormContainer>
