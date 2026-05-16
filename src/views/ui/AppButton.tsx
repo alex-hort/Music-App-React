@@ -1,38 +1,36 @@
-import colors from "@/utils/colors";
-import {FC} from "react";
-import {Pressable, StyleSheet, Text} from "react-native";
-import Loader from "./Loader";
+import colors from '@/utils/colors';
+import { FC } from 'react';
+import { Pressable, StyleSheet, Text } from 'react-native';
+import Loader from './Loader';
 
 interface Props {
-    title: string;
-    onPress?() : void;
-    busy?: boolean;
+  title: string;
+  onPress?(): void;
+  busy?: boolean;
+  borderRadius?: number;
 }
 
-const AppButton: FC<Props> = ({title, onPress, busy}) => {
-
-    return <Pressable style={styles.container} onPress={onPress}>
-        {!busy ? <Text style={styles.title}>{title}</Text> : <Loader />}
-
+const AppButton: FC<Props> = ({ title, onPress, busy, borderRadius }) => {
+  return (
+    <Pressable style={[styles.container, { borderRadius: borderRadius || 25 }]} onPress={onPress}>
+      {!busy ? <Text style={styles.title}>{title}</Text> : <Loader />}
     </Pressable>
-
-}
-
+  );
+};
 
 const styles = StyleSheet.create({
-    container: {
-        width: "100%",
-        height: 45,
-        backgroundColor: colors.SECONDARY,
-        alignItems: "center",
-        justifyContent: "center",
-        borderRadius: 25
-    },
-    title: {
-        color: colors.CONTRAST,
-        fontSize: 18,
-        fontWeight: "bold"
-    }
-})
+  container: {
+    width: '100%',
+    height: 45,
+    backgroundColor: colors.SECONDARY,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  title: {
+    color: colors.CONTRAST,
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+});
 
 export default AppButton;

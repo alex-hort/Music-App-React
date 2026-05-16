@@ -1,4 +1,4 @@
-import { NavigationContainer } from '@react-navigation/native';
+import { DefaultTheme, NavigationContainer } from '@react-navigation/native';
 import { FC, useEffect } from 'react';
 import AuthNavigator from './AuthNavigator';
 import { View, StyleSheet } from 'react-native';
@@ -16,6 +16,17 @@ import colors from '@/utils/colors';
 import Loader from '@/views/ui/Loader';
 
 interface Props {}
+
+
+const AppTheme = {
+  ...DefaultTheme,
+  colors: {
+    ...DefaultTheme.colors,
+    background: colors.PRIMARY,
+    primary: colors.CONTRAST,
+
+  }
+}
 
 const AppNavigator: FC<Props> = props => {
   const { loggedIn, busy } = useSelector(getAuthState);
