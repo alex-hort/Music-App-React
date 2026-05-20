@@ -1,18 +1,22 @@
-import {FC} from 'react';
-import { View, Text , StyleSheet} from 'react-native';
+
+import { FC } from 'react';
+import { View, Text, StyleSheet } from 'react-native';
+
 
 interface Props {}
 
 const Home: FC<Props> = props => {
-    return <View style={styles.container} ></View>
 
-}
-
+  return (
+    <View style={styles.container}>
+      <Text>Home</Text>
+   
+    </View>
+  );
+};
 
 const styles = StyleSheet.create({
-    container:{
-
-    }
-})
+  container: {},
+});
 
 export default Home;

@@ -11,6 +11,10 @@ import { useNavigation, NavigationProp } from '@react-navigation/native';
 import { AuthStackParamList } from '@/@types/navigation';
 import { FormikHelpers } from 'formik';
 import client from '@/api/client';
+import { catchAsyncError } from '@/api/catchError';
+import { useDispatch } from 'react-redux';
+import { uploadNotification } from '@/store/notification';
+
 
 const signupSchema = yup.object({
   name: yup
@@ -50,6 +54,7 @@ const initialValues = {
 const SignUp: FC<Props> = props => {
   const [secureEntry, setSecureEntry] = useState(true);
   const navigation = useNavigation<NavigationProp<AuthStackParamList>>();
+  const dispatch = useDispatch();
 
   const togglePasswordView = () => {
     setSecureEntry(!secureEntry);
@@ -65,7 +70,8 @@ const SignUp: FC<Props> = props => {
       console.log('3. Respuesta:', response.data);
       navigation.navigate('Verification', { userInfo: response.data.user });
     } catch (error) {
-      console.log('4. ERROR:', JSON.stringify(error)); // ¿entra al catch?
+      const errorMessage = catchAsyncError(error);
+      dispatch(uploadNotification({ message: errorMessage, type: 'error' }));
     }
     actions.setSubmitting(false);
   };

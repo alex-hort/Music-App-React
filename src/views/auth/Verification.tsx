@@ -1,28 +1,32 @@
-import {FC, useEffect, useRef, useState} from 'react';
-import {Keyboard, StyleSheet, Text, TextInput, View} from 'react-native';
+import { FC, useEffect, useRef, useState } from 'react';
+import { Keyboard, StyleSheet, Text, TextInput, View } from 'react-native';
 import AppLink from '../ui/AppLink';
 import AuthFormContainer from '@/components/form/AuthFormContainer';
 import OTPField from '../ui/OTPField';
 import AppButton from '../ui/AppButton';
-import {NativeStackScreenProps} from '@react-navigation/native-stack';
-import {AuthStackParamList} from 'src/@types/navigation';
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { AuthStackParamList } from 'src/@types/navigation';
 import client from '@/api/client';
-import {NavigationProp, useNavigation} from '@react-navigation/native';
+import { NavigationProp, useNavigation } from '@react-navigation/native';
 import colors from '@/utils/colors';
+import { uploadNotification } from '@/store/notification';
+import { useDispatch } from 'react-redux';
+import { catchAsyncError } from '@/api/catchError';
 
 type Props = NativeStackScreenProps<AuthStackParamList, 'Verification'>;
 
 const otpFields = new Array(6).fill('');
 
-const Verification: FC<Props> = ({route}) => {
+const Verification: FC<Props> = ({ route }) => {
   const navigation = useNavigation<NavigationProp<AuthStackParamList>>();
   const [otp, setOtp] = useState([...otpFields]);
   const [activeOtpIndex, setActiveOtpIndex] = useState(0);
   const [submitting, setSubmitting] = useState(false);
   const [coundDown, setCoundDown] = useState(60);
   const [canSendNewOtpRequest, setCanSendNewOtpRequest] = useState(false);
+  const dispatch = useDispatch()
 
-  const {userInfo} = route.params;
+  const { userInfo } = route.params;
 
   const inputRef = useRef<TextInput>(null);
 
@@ -55,17 +59,21 @@ const Verification: FC<Props> = ({route}) => {
   });
 
   const handleSubmit = async () => {
-    if (!isValidOtp) return;
+    if (!isValidOtp) return dispatch(uploadNotification({ message: 'Please enter a valid OTP', type: 'error' }));
     setSubmitting(true);
     try {
-      const {data} = await client.post('/auth/verify-email', {
+      const { data } = await client.post('/auth/verify-email', {
         userId: userInfo.id,
         token: otp.join(''),
       });
-      // navigate back to sign in
+      dispatch(uploadNotification({ message: data.message, type: 'success' }));
+
+
+ 
       navigation.navigate('SignIn');
     } catch (error) {
-      console.log('Error inside Verification: ', error);
+       const errorMessage = catchAsyncError(error);
+        dispatch(uploadNotification({ message: errorMessage, type: 'error' }));
     }
     setSubmitting(false);
   };
@@ -115,7 +123,7 @@ const Verification: FC<Props> = ({route}) => {
               ref={activeOtpIndex === index ? inputRef : null}
               key={index}
               placeholder="*"
-              onKeyPress={({nativeEvent}) => {
+              onKeyPress={({ nativeEvent }) => {
                 handleChange(nativeEvent.key, index);
               }}
               onChangeText={handlePaste}

@@ -1,15 +1,18 @@
 import AuthInputField from '@/components/form/AuthInputFiled';
 import Form from '@/components/form';
-import {FC} from 'react';
-import {StyleSheet, View} from 'react-native';
+import { FC } from 'react';
+import { StyleSheet, View } from 'react-native';
 import * as yup from 'yup';
 import SubmitBtn from '@/components/form/SubmitBtn';
 import AppLink from '../ui/AppLink';
 import AuthFormContainer from '@/components/form/AuthFormContainer';
-import {NavigationProp, useNavigation} from '@react-navigation/native';
-import {AuthStackParamList} from 'src/@types/navigation';
-import {FormikHelpers} from 'formik';
+import { NavigationProp, useNavigation } from '@react-navigation/native';
+import { AuthStackParamList } from 'src/@types/navigation';
+import { FormikHelpers } from 'formik';
 import client from '@/api/client';
+import { useDispatch } from 'react-redux';
+import catchAsyncError from '@/api/catchError';
+import { uploadNotification } from '@/store/notification';
 
 const lostPasswordSchema = yup.object({
   email: yup
@@ -29,35 +32,40 @@ const initialValues = {
   email: '',
 };
 
-const handleSubmit = async (
-  values: InitialValue,
-  actions: FormikHelpers<InitialValue>,
-) => {
-  actions.setSubmitting(true);
-  try {
-    // we want to send these information to our api
-    const {data} = await client.post('/auth/forget-password', {
-      ...values,
-    });
-
-    console.log(data);
-  } catch (error) {
-    console.log('Lost Password error: ', error);
-  }
-
-  actions.setSubmitting(false);
-};
-
 const LostPassword: FC<Props> = props => {
   const navigation = useNavigation<NavigationProp<AuthStackParamList>>();
+  const dispatch = useDispatch();
+
+  const handleSubmit = async (
+    values: InitialValue,
+    actions: FormikHelpers<InitialValue>,
+  ) => {
+    actions.setSubmitting(true);
+    try {
+      // we want to send these information to our api
+      const { data } = await client.post('/auth/forget-password', {
+        ...values,
+      });
+
+      console.log(data);
+    } catch (error) {
+      const errorMessage = catchAsyncError(error);
+      dispatch(uploadNotification({ message: errorMessage, type: 'error' }));
+    }
+
+    actions.setSubmitting(false);
+  };
+
   return (
     <Form
       onSubmit={handleSubmit}
       initialValues={initialValues}
-      validationSchema={lostPasswordSchema}>
+      validationSchema={lostPasswordSchema}
+    >
       <AuthFormContainer
         heading="Forget Password!"
-        subHeading="Oops, did you forget your password? Don't worry, we'll help you get back in.">
+        subHeading="Oops, did you forget your password? Don't worry, we'll help you get back in."
+      >
         <View style={styles.formContainer}>
           <AuthInputField
             name="email"

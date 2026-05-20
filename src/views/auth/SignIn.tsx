@@ -14,6 +14,8 @@ import client from '@/api/client';
 import { updateLoggedInState, updateProfile } from '@/store/auth';
 import { useDispatch } from 'react-redux';
 import { Keys, saveToAsyncStorage } from '@/utils/asyncStorage';
+import { catchAsyncError } from '@/api/catchError';
+import { uploadNotification } from '@/store/notification';
 
 const signinSchema = yup.object({
   email: yup
@@ -42,7 +44,7 @@ const initialValues = {
 const SignIn: FC<Props> = props => {
   const [secureEntry, setSecureEntry] = useState(true);
   const navigation = useNavigation<NavigationProp<AuthStackParamList>>();
-  const dispatch = useDispatch()
+  const dispatch = useDispatch();
 
   const togglePasswordView = () => {
     setSecureEntry(!secureEntry);
@@ -52,22 +54,16 @@ const SignIn: FC<Props> = props => {
     values: SignInUserInfo,
     actions: FormikHelpers<SignInUserInfo>,
   ) => {
-
     actions.setSubmitting(true);
     try {
       const response = await client.post('/auth/sign-in', { ...values });
 
-
       await saveToAsyncStorage(response.data.token, Keys.AUTH_TOKEN);
-      dispatch(updateProfile(response.data.user) );
-      dispatch(updateLoggedInState(true) );
-
-
-
-
-
+      dispatch(updateProfile(response.data.user));
+      dispatch(updateLoggedInState(true));
     } catch (error) {
-      console.log('Sign-in error:', error);
+      const errorMessage = catchAsyncError(error);
+      dispatch(uploadNotification({ message: errorMessage, type: 'error' }));
     }
     actions.setSubmitting(false);
   };

@@ -1,4 +1,5 @@
 import { createSelector, createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { RootState } from '../store'; 
 
 export interface UserProfile {
   id: string;
@@ -32,7 +33,7 @@ const slice = createSlice({
     updateLoggedInState(authState, { payload }) {
       authState.loggedIn = payload;
     },
-    updateBusyState(authState, { payload } : PayloadAction<boolean>) {
+    updateBusyState(authState, { payload }: PayloadAction<boolean>) {
       authState.busy = payload;
     },
   },
@@ -40,10 +41,12 @@ const slice = createSlice({
 
 export const { updateProfile, updateLoggedInState, updateBusyState } =
   slice.actions;
-const getAuthState = createSelector(
-  (state: any) => state,
-  authState => authState,
+
+
+export const getAuthState = createSelector(
+  (state: RootState) => state,
+  ({ auth }) => auth,
 );
-export { getAuthState };
+
 
 export default slice.reducer;

@@ -3,6 +3,7 @@ import store from "@/store";
 import AppNavigator from "@/navigation";
 
 const App = () => {
+
   return (
     <Provider store={store}>
       <AppNavigator />

@@ -1,25 +1,38 @@
 import colors from '@/utils/colors';
 import { FC, JSX, ReactNode } from 'react';
-import {
-  View,
-  StyleSheet,
-  Pressable,
-  Text,
-  ViewStyle,
-
-} from 'react-native';
-
-
+import { View, StyleSheet, Pressable, Text, ViewStyle } from 'react-native';
+import  DocumentPicker, { DocumentPickerOptions, DocumentPickerResponse }  from 'react-native-document-picker';
+import { SupportedPlatforms } from 'react-native-document-picker/lib/typescript/fileTypes';
 
 interface Props {
   icon: JSX.Element;
   btnTitle: string;
   style?: ViewStyle;
+  onSelect(file: DocumentPickerResponse): void;
+  options: DocumentPickerOptions<SupportedPlatforms>;
 }
-const FileSelector: FC<Props> = ({ icon, btnTitle, style }) => {
-  return (
-    <Pressable style={[styles.btnContainer, style]}>
+const FileSelector: FC<Props> = ({ icon, btnTitle, style, onSelect, options }) => {
+  const handleDocumentSelect = async () => {
+    try{
+      const document = await DocumentPicker.pick(options)
+      const file = document[0];
+      onSelect(file);
 
+    }catch(err){
+      if(DocumentPicker.isCancel(err)){
+        console.log('User cancelled the picker');
+      }else{
+        console.error('Unknown error: ', err);
+      }
+    }
+
+  };
+
+  return (
+    <Pressable
+      onPress={handleDocumentSelect}
+      style={[styles.btnContainer, style]}
+    >
       <View style={styles.iconContainer}>{icon}</View>
       <Text style={styles.btnTitle}>{btnTitle}</Text>
     </Pressable>
